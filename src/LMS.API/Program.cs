@@ -1,4 +1,7 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using LMS.Infrastructure.Persistence.Context;
+using LMS.Infrastructure.Persistence.Seeds;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +54,19 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddDbContext<LmsDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
+    await db.Database.MigrateAsync();
+    await AdminUserSeed.SeedAsync(db);
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -64,10 +79,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
