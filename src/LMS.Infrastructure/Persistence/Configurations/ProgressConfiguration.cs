@@ -4,12 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LMS.Infrastructure.Persistence.Configurations;
 
-public class ProgressConfiguration : IEntityTypeConfiguration<Progress>
+public class ProgressConfiguration : BaseEntityConfiguration<Progress>
 {
-    public void Configure(EntityTypeBuilder<Progress> builder)
+    protected override void ConfigureEntity(EntityTypeBuilder<Progress> builder)
     {
         builder.ToTable("Progresses");
-        builder.HasKey(x => x.Id);
 
         builder.HasIndex(x => new { x.EnrollmentId, x.LessonId })
             .IsUnique().HasDatabaseName("IX_Progresses_EnrollmentId_LessonId");

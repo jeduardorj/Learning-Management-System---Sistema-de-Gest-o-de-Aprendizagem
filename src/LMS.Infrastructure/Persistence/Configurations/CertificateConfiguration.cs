@@ -4,12 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LMS.Infrastructure.Persistence.Configurations;
 
-public class CertificateConfiguration : IEntityTypeConfiguration<Certificate>
+public class CertificateConfiguration : BaseEntityConfiguration<Certificate>
 {
-    public void Configure(EntityTypeBuilder<Certificate> builder)
+    protected override void ConfigureEntity(EntityTypeBuilder<Certificate> builder)
     {
         builder.ToTable("Certificates");
-        builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Code).IsRequired().HasMaxLength(100);
 
