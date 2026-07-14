@@ -1,4 +1,5 @@
-﻿using LMS.Infrastructure.Persistence.Context;
+﻿using LMS.API.Middleware;
+using LMS.Infrastructure.Persistence.Context;
 using LMS.Infrastructure.Persistence.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -6,6 +7,9 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -63,9 +67,18 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
-    await db.Database.MigrateAsync();
-    await AdminUserSeed.SeedAsync(db);
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
+        await db.Database.MigrateAsync();
+        await AdminUserSeed.SeedAsync(db);
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Falha ao aplicar migrations ou executar o seed inicial do banco de dados.");
+        throw;
+    }
 }
 
 if (app.Environment.IsDevelopment())
@@ -77,6 +90,8 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
+
+app.UseExceptionHandler();
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
