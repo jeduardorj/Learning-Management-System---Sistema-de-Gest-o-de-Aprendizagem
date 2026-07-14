@@ -3,7 +3,7 @@
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: lms-sqlserver
     environment:
-      SA_PASSWORD: "LMS@SqlServer2024"
+      SA_PASSWORD: "${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD must be set (see .env.example)}"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Developer"
     ports:
