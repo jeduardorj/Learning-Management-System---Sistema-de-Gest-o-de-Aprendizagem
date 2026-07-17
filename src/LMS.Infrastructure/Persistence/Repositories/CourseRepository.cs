@@ -11,4 +11,7 @@ public class CourseRepository : BaseRepository<Course>, ICourseRepository
 
     public async Task<bool> ExistsByTitleAsync(string title)
         => await _dbSet.AnyAsync(x => x.Title == title);
+
+    public IQueryable<Course> GetQueryable()
+        => _dbSet.AsQueryable();
 }
