@@ -1,5 +1,6 @@
-ï»¿using System.Text;
+using System.Text;
 using LMS.Application.Interfaces;
+using LMS.Application.Mappings;
 using LMS.Application.Services;
 using LMS.Domain.Interfaces.Repositories;
 using LMS.Infrastructure.Auth;
@@ -96,8 +97,13 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// AutoMapper — varre o assembly do Application procurando todos os Profiles
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(CourseProfile).Assembly));
+
+// Injeção de Dependência
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
