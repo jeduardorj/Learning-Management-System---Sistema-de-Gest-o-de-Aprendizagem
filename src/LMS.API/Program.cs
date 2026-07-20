@@ -104,10 +104,14 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(CourseProfile).Assembly
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IModuleService, ModuleService>();
+builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 var app = builder.Build();
+
+app.UseMiddleware<LMS.API.Middlewares.ExceptionHandlingMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {
