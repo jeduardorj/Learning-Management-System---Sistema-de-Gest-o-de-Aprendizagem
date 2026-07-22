@@ -7,5 +7,6 @@ public interface IUnitOfWork : IDisposable
     IEnrollmentRepository Enrollments { get; }
     IModuleRepository Modules { get; }
     ILessonRepository Lessons { get; }
+    IProgressRepository Progresses { get; }
     Task<int> CommitAsync();
 }
