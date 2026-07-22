@@ -20,13 +20,5 @@ public class LmsDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(LmsDbContext).Assembly);
-
-        modelBuilder.Entity<User>().HasQueryFilter(x => !x.IsDeleted);
-        modelBuilder.Entity<Course>().HasQueryFilter(x => !x.IsDeleted);
-        modelBuilder.Entity<Module>().HasQueryFilter(x => !x.IsDeleted);
-        modelBuilder.Entity<Lesson>().HasQueryFilter(x => !x.IsDeleted);
-        modelBuilder.Entity<Enrollment>().HasQueryFilter(x => !x.IsDeleted);
-        modelBuilder.Entity<Progress>().HasQueryFilter(x => !x.IsDeleted);
-        modelBuilder.Entity<Certificate>().HasQueryFilter(x => !x.IsDeleted);
     }
 }

@@ -4,12 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LMS.Infrastructure.Persistence.Configurations;
 
-public class ModuleConfiguration : IEntityTypeConfiguration<Module>
+public class ModuleConfiguration : BaseEntityConfiguration<Module>
 {
-    public void Configure(EntityTypeBuilder<Module> builder)
+    protected override void ConfigureEntity(EntityTypeBuilder<Module> builder)
     {
         builder.ToTable("Modules");
-        builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Title).IsRequired().HasMaxLength(200);
         builder.Property(x => x.Order).IsRequired();
