@@ -106,6 +106,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IModuleService, ModuleService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+builder.Services.AddScoped<ICurrentUserService, LMS.Infrastructure.Services.CurrentUserService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 

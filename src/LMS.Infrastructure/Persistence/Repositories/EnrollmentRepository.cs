@@ -16,4 +16,21 @@ public class EnrollmentRepository : BaseRepository<Enrollment>, IEnrollmentRepos
         => await _dbSet
             .Include(x => x.Progresses)
             .FirstOrDefaultAsync(x => x.Id == enrollmentId);
+
+    public async Task<IEnumerable<Enrollment>> GetByUserIdWithCourseAsync(Guid userId)
+        => await _dbSet
+            .Include(x => x.Course)
+            .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.EnrolledAt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Enrollment>> GetByCourseIdAsync(Guid courseId)
+        => await _dbSet
+            .Where(x => x.CourseId == courseId)
+            .OrderByDescending(x => x.EnrolledAt)
+            .ToListAsync();
+
+    public async Task<Enrollment?> GetByUserAndCourseAsync(Guid userId, Guid courseId)
+        => await _dbSet
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.CourseId == courseId);
 }
