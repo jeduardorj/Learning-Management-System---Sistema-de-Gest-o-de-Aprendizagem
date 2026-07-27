@@ -13,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
     public IModuleRepository Modules { get; }
     public ILessonRepository Lessons { get; }
     public IProgressRepository Progresses { get; }
+    public ICertificateRepository Certificates { get; }
 
     public UnitOfWork(LmsDbContext context)
     {
@@ -23,6 +24,7 @@ public class UnitOfWork : IUnitOfWork
         Modules = new ModuleRepository(context);
         Lessons = new LessonRepository(context);
         Progresses = new ProgressRepository(context);
+        Certificates = new CertificateRepository(context);
     }
 
     public async Task<int> CommitAsync()

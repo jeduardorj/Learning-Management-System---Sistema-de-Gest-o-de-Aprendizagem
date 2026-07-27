@@ -8,5 +8,6 @@ public interface IUnitOfWork : IDisposable
     IModuleRepository Modules { get; }
     ILessonRepository Lessons { get; }
     IProgressRepository Progresses { get; }
+    ICertificateRepository Certificates { get; }
     Task<int> CommitAsync();
 }

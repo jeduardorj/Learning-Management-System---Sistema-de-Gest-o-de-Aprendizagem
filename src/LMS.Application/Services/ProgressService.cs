@@ -23,11 +23,9 @@ public class ProgressService : IProgressService
     {
         var userId = _currentUser.UserId;
 
-        // Verifica se o aluno está matriculado no curso
         var enrollment = await _unitOfWork.Enrollments.GetByUserAndCourseAsync(userId, courseId)
             ?? throw new InvalidOperationException("Você não está matriculado neste curso.");
 
-        // Verifica se a aula existe e pertence ao curso
         var lesson = await _unitOfWork.Lessons.GetByIdAsync(lessonId)
             ?? throw new KeyNotFoundException($"Aula com Id '{lessonId}' não encontrada.");
 
@@ -37,7 +35,6 @@ public class ProgressService : IProgressService
         if (module.CourseId != courseId)
             throw new InvalidOperationException("A aula não pertence a este curso.");
 
-        // Idempotência — se já existe, retorna sem criar duplicata
         var existing = await _unitOfWork.Progresses
             .GetByEnrollmentAndLessonAsync(enrollment.Id, lessonId);
 
@@ -48,19 +45,22 @@ public class ProgressService : IProgressService
                 existing.Complete();
                 _unitOfWork.Progresses.Update(existing);
                 await _unitOfWork.CommitAsync();
+                await TryIssueCertificateAsync(userId, courseId, enrollment.Id);
             }
 
-            return _mapper.Map<ProgressResponseDto>(existing);
+            var existingResult = await _unitOfWork.Progresses
+                .GetByEnrollmentAndLessonAsync(enrollment.Id, lessonId);
+            return _mapper.Map<ProgressResponseDto>(existingResult!);
         }
 
-        // Cria novo registro de progresso já marcado como concluído
         var progress = new Progress(enrollment.Id, lessonId);
         progress.Complete();
 
         await _unitOfWork.Progresses.AddAsync(progress);
         await _unitOfWork.CommitAsync();
 
-        // Carrega a aula para o mapeamento do título
+        await TryIssueCertificateAsync(userId, courseId, enrollment.Id);
+
         var result = await _unitOfWork.Progresses
             .GetByEnrollmentAndLessonAsync(enrollment.Id, lessonId);
 
@@ -96,5 +96,22 @@ public class ProgressService : IProgressService
             CompletionPercentage = percentage,
             Progresses = _mapper.Map<IEnumerable<ProgressResponseDto>>(progresses)
         };
+    }
+
+    private async Task TryIssueCertificateAsync(Guid userId, Guid courseId, Guid enrollmentId)
+    {
+        var totalLessons = await _unitOfWork.Progresses.CountTotalLessonsInCourseAsync(courseId);
+        if (totalLessons == 0) return;
+
+        var completedLessons = await _unitOfWork.Progresses.CountCompletedAsync(enrollmentId);
+        if (completedLessons < totalLessons) return;
+
+        var alreadyIssued = await _unitOfWork.Certificates
+            .GetByUserAndCourseAsync(userId, courseId);
+        if (alreadyIssued is not null) return;
+
+        var certificate = new Certificate(userId, courseId);
+        await _unitOfWork.Certificates.AddAsync(certificate);
+        await _unitOfWork.CommitAsync();
     }
 }
