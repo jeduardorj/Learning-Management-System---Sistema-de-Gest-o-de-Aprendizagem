@@ -1,6 +1,5 @@
 using System.Text;
 using LMS.Application.Interfaces;
-using LMS.Application.Mappings;
 using LMS.Application.Services;
 using LMS.Domain.Interfaces.Repositories;
 using LMS.Infrastructure.Auth;
@@ -8,6 +7,7 @@ using LMS.Infrastructure.Configuration;
 using LMS.Infrastructure.Persistence.Context;
 using LMS.Infrastructure.Persistence.Repositories;
 using LMS.Infrastructure.Persistence.Seeds;
+using LMS.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -97,8 +97,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// AutoMapper — varre o assembly do Application procurando todos os Profiles
-builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(CourseProfile).Assembly));
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(LMS.Application.Mappings.CourseProfile).Assembly));
+
+builder.Services.AddHttpContextAccessor();
 
 // Injeção de Dependência
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -109,10 +110,11 @@ builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IProgressService, ProgressService>();
 builder.Services.AddScoped<ICertificateService, CertificateService>();
-builder.Services.AddScoped<ICurrentUserService, LMS.Infrastructure.Services.CurrentUserService>();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
