@@ -10,6 +10,7 @@ using LMS.Infrastructure.Persistence.Seeds;
 using LMS.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -101,7 +102,6 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(LMS.Application.Mapping
 
 builder.Services.AddHttpContextAccessor();
 
-// Injeção de Dependência
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
@@ -123,8 +123,11 @@ app.UseMiddleware<LMS.API.Middlewares.ExceptionHandlingMiddleware>();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
-    await db.Database.MigrateAsync();
-    await AdminUserSeed.SeedAsync(db);
+    if (!db.Database.IsInMemory())
+    {
+        await db.Database.MigrateAsync();
+        await AdminUserSeed.SeedAsync(db);
+    }
 }
 
 if (app.Environment.IsDevelopment())
@@ -143,3 +146,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
