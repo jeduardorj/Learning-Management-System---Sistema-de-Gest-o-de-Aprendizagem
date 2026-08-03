@@ -11,6 +11,32 @@
     volumes:
       - sqlserver-data:/var/opt/mssql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P 'LMS@SqlServer2024' -Q 'SELECT 1' -No -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lms-api
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=LmsDb;User Id=SA;Password=LMS@SqlServer2024;TrustServerCertificate=True"
+      JwtSettings__SecretKey: "CHAVE_SECRETA_SUBSTITUA_POR_ALGO_LONGO_EM_PRODUCAO_64_CHARS_MIN"
+      JwtSettings__Issuer: "LMS.API"
+      JwtSettings__Audience: "LMS.Client"
+      JwtSettings__ExpirationInMinutes: "60"
+      JwtSettings__RefreshTokenExpirationInDays: "7"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   sqlserver-data:
