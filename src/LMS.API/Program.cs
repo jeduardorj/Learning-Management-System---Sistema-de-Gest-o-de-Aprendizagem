@@ -130,7 +130,10 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (app.Environment.IsDevelopment())
+
+var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger", app.Environment.IsDevelopment());
+
+if (enableSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -139,6 +142,17 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
+
+
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI(options =>
+//    {
+//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "LMS API v1");
+//        options.RoutePrefix = string.Empty;
+//    });
+//}
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
