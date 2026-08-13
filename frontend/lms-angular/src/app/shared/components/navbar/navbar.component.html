@@ -1,12 +1,24 @@
 ﻿<nav class="bg-blue-600 text-white shadow-md">
   <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
     <a routerLink="/dashboard" class="text-xl font-bold">LMS</a>
+
     @if (authService.isAuthenticated()) {
       <div class="flex items-center gap-6">
-        <a routerLink="/dashboard" routerLinkActive="underline" class="hover:text-blue-200 transition-colors">Dashboard</a>
-        <a routerLink="/courses" routerLinkActive="underline" class="hover:text-blue-200 transition-colors">Cursos</a>
+        <a routerLink="/dashboard" routerLinkActive="underline" class="hover:text-blue-200 transition-colors">
+          Dashboard
+        </a>
+        <a routerLink="/courses" routerLinkActive="underline" class="hover:text-blue-200 transition-colors">
+          Cursos
+        </a>
+        @if (authService.isAdmin()) {
+          <a routerLink="/admin" routerLinkActive="underline" class="hover:text-blue-200 transition-colors">
+            Admin
+          </a>
+        }
         <span class="text-blue-200 text-sm">{{ authService.user()?.userName }}</span>
-        <button (click)="logout()" class="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-sm transition-colors">Sair</button>
+        <button (click)="logout()" class="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded text-sm transition-colors">
+          Sair
+        </button>
       </div>
     }
   </div>

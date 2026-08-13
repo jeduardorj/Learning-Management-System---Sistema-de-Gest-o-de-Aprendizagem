@@ -10,6 +10,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'lms_access_token';
   private readonly REFRESH_KEY = 'lms_refresh_token';
   private readonly USER_KEY = 'lms_user';
+
   private _user = signal<User | null>(this.loadUser());
   user = this._user.asReadonly();
   isAuthenticated = computed(() => this._user() !== null);
@@ -19,33 +20,36 @@ export class AuthService {
 
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, request)
-      .pipe(tap(r => this.handleAuthResponse(r)));
+      .pipe(tap(response => this.handleAuthResponse(response)));
   }
 
   register(request: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, request)
-      .pipe(tap(r => this.handleAuthResponse(r)));
+      .pipe(tap(response => this.handleAuthResponse(response)));
   }
 
   logout(): void {
-    const rt = this.getRefreshToken();
-    if (rt) this.http.post(`${environment.apiUrl}/auth/revoke`, { refreshToken: rt }).subscribe();
+    const refreshToken = this.getRefreshToken();
+    if (refreshToken) {
+      this.http.post(`${environment.apiUrl}/auth/revoke`, { refreshToken }).subscribe();
+    }
     this.clearStorage();
     this.router.navigate(['/login']);
   }
 
   refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, { refreshToken: this.getRefreshToken() })
-      .pipe(tap(r => this.handleAuthResponse(r)));
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, { refreshToken })
+      .pipe(tap(response => this.handleAuthResponse(response)));
   }
 
   getToken(): string | null { return localStorage.getItem(this.TOKEN_KEY); }
   getRefreshToken(): string | null { return localStorage.getItem(this.REFRESH_KEY); }
 
-  private handleAuthResponse(r: AuthResponse): void {
-    localStorage.setItem(this.TOKEN_KEY, r.accessToken);
-    localStorage.setItem(this.REFRESH_KEY, r.refreshToken);
-    const user: User = { userName: r.userName, email: r.email, role: r.role };
+  private handleAuthResponse(response: AuthResponse): void {
+    localStorage.setItem(this.TOKEN_KEY, response.accessToken);
+    localStorage.setItem(this.REFRESH_KEY, response.refreshToken);
+    const user: User = { userName: response.userName, email: response.email, role: response.role };
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this._user.set(user);
   }
@@ -58,7 +62,7 @@ export class AuthService {
   }
 
   private loadUser(): User | null {
-    const s = localStorage.getItem(this.USER_KEY);
-    return s ? JSON.parse(s) : null;
+    const stored = localStorage.getItem(this.USER_KEY);
+    return stored ? JSON.parse(stored) : null;
   }
 }
