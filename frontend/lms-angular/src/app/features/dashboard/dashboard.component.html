@@ -1,0 +1,40 @@
+﻿<div class="space-y-6">
+  <h1 class="text-2xl font-bold text-gray-800">{{ authService.isAdmin() ? 'Dashboard Admin' : 'Meu Painel' }}</h1>
+  @if (loading()) { <app-loading /> }
+  @else if (data()) {
+    @if (authService.isAdmin()) {
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white border rounded-lg p-5 text-center shadow-sm"><div class="text-3xl font-bold text-blue-600">{{ data().totalStudents }}</div><div class="text-sm text-gray-500 mt-1">Alunos</div></div>
+        <div class="bg-white border rounded-lg p-5 text-center shadow-sm"><div class="text-3xl font-bold text-green-600">{{ data().totalActiveCourses }}</div><div class="text-sm text-gray-500 mt-1">Cursos Ativos</div></div>
+        <div class="bg-white border rounded-lg p-5 text-center shadow-sm"><div class="text-3xl font-bold text-purple-600">{{ data().totalEnrollments }}</div><div class="text-sm text-gray-500 mt-1">Matriculas</div></div>
+        <div class="bg-white border rounded-lg p-5 text-center shadow-sm"><div class="text-3xl font-bold text-amber-600">{{ data().totalCertificatesIssued }}</div><div class="text-sm text-gray-500 mt-1">Certificados</div></div>
+      </div>
+      @if (data().mostPopularCourses?.length > 0) {
+        <div class="bg-white border rounded-lg p-5 shadow-sm">
+          <h2 class="font-semibold text-gray-700 mb-4">Cursos mais populares</h2>
+          @for (c of data().mostPopularCourses; track c.id) {
+            <div class="flex justify-between text-sm py-1"><span>{{ c.title }}</span><span class="text-blue-600 font-medium">{{ c.enrollmentCount }} matriculas</span></div>
+          }
+        </div>
+      }
+    } @else {
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="bg-white border rounded-lg p-5 text-center shadow-sm"><div class="text-3xl font-bold text-blue-600">{{ data().enrolledCourses }}</div><div class="text-sm text-gray-500 mt-1">Matriculas</div></div>
+        <div class="bg-white border rounded-lg p-5 text-center shadow-sm"><div class="text-3xl font-bold text-green-600">{{ data().completedCourses }}</div><div class="text-sm text-gray-500 mt-1">Concluidos</div></div>
+        <div class="bg-white border rounded-lg p-5 text-center shadow-sm"><div class="text-3xl font-bold text-amber-600">{{ data().certificatesEarned }}</div><div class="text-sm text-gray-500 mt-1">Certificados</div></div>
+      </div>
+      @if (data().coursesInProgress?.length > 0) {
+        <div class="bg-white border rounded-lg p-5 shadow-sm">
+          <h2 class="font-semibold text-gray-700 mb-4">Meus cursos</h2>
+          @for (item of data().coursesInProgress; track item.courseId) {
+            <div class="mb-3">
+              <div class="flex justify-between text-sm mb-1"><span>{{ item.courseTitle }}</span><span class="text-gray-500">{{ item.completionPercentage }}%</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" [style.width.%]="item.completionPercentage"></div></div>
+            </div>
+          }
+        </div>
+      }
+      <a routerLink="/courses" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Ver cursos</a>
+    }
+  }
+</div>

@@ -1,0 +1,48 @@
+﻿<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">Cursos</h1>
+    @if (authService.isAdmin()) {
+      <a routerLink="/courses/new" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">+ Novo Curso</a>
+    }
+  </div>
+  <div class="flex gap-3">
+    <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="search()" placeholder="Buscar cursos..."
+      class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+    <button (click)="search()" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm">Buscar</button>
+  </div>
+  @if (loading()) { <app-loading /> }
+  @else if (result()) {
+    @if (result()!.items.length === 0) {
+      <div class="text-center py-12 text-gray-500">Nenhum curso encontrado.</div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (course of result()!.items; track course.id) {
+          <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <h2 class="font-semibold text-gray-800">{{ course.title }}</h2>
+              <span class="text-xs px-2 py-1 rounded-full ml-2"
+                [class]="course.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'">
+                {{ course.isActive ? 'Ativo' : 'Inativo' }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ course.description }}</p>
+            <div class="flex gap-2 flex-wrap">
+              <a [routerLink]="['/courses', course.id]" class="text-sm text-blue-600 hover:underline">Ver conteudo</a>
+              @if (authService.isAdmin()) {
+                <a [routerLink]="['/courses', course.id, 'edit']" class="text-sm text-gray-500 hover:text-gray-700">Editar</a>
+                <button (click)="toggleActive(course)" class="text-sm text-yellow-600 hover:text-yellow-800">{{ course.isActive ? 'Desativar' : 'Ativar' }}</button>
+                <button (click)="confirmDelete(course)" class="text-sm text-red-500 hover:text-red-700">Excluir</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <app-pagination [currentPage]="result()!.currentPage" [totalPages]="result()!.totalPages"
+        [totalItems]="result()!.totalItems" [hasPreviousPage]="result()!.hasPreviousPage"
+        [hasNextPage]="result()!.hasNextPage" (pageChange)="onPageChange($event)" />
+    }
+  }
+</div>
+<app-confirm-dialog [visible]="!!deleteTarget()" title="Excluir curso"
+  [message]="'Deseja excluir: ' + (deleteTarget()?.title ?? '') + '?'"
+  (confirm)="doDelete()" (cancel)="cancelDelete()" />
