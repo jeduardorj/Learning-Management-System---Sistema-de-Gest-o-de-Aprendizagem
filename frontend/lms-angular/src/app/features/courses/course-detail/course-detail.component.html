@@ -6,51 +6,17 @@
         <h1 class="text-2xl font-bold text-gray-800 mt-1">{{ course()!.title }}</h1>
         <p class="text-gray-600 mt-1">{{ course()!.description }}</p>
       </div>
-      <div class="flex gap-2">
-        @if (authService.isAdmin()) {
-          <a [routerLink]="['/courses', courseId, 'edit']" class="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg">Editar</a>
-        }
-        @if (!authService.isAdmin()) {
-          @if (!enrolled()) {
-            <button (click)="enroll()" [disabled]="enrolling()"
-              class="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50">
-              {{ enrolling() ? 'Matriculando...' : 'Matricular-se' }}
-            </button>
-          } @else {
-            <a [routerLink]="['/my-courses', courseId]"
-              class="text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-              Ver meu progresso
-            </a>
-          }
-        }
-      </div>
+      @if (authService.isAdmin()) {
+        <a [routerLink]="['/courses', courseId, 'edit']" class="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg">Editar</a>
+      }
     </div>
-
-    @if (enrolled() && progress()) {
-      <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <div class="flex justify-between text-sm mb-2">
-          <span class="font-medium text-gray-700">Seu progresso</span>
-          <span class="text-blue-600 font-bold">{{ progress().completionPercentage }}%</span>
-        </div>
-        <div class="w-full bg-gray-100 rounded-full h-3">
-          <div class="bg-blue-600 h-3 rounded-full transition-all" [style.width.%]="progress().completionPercentage"></div>
-        </div>
-        @if (progress().isCompleted) {
-          <div class="mt-3 text-green-600 font-medium text-sm flex items-center gap-2">
-            Curso concluido! <a [routerLink]="['/certificates', courseId]" class="underline">Ver certificado</a>
-          </div>
-        }
-      </div>
-    }
   }
-
   <div class="flex items-center justify-between">
     <h2 class="text-lg font-semibold text-gray-700">Modulos</h2>
     @if (authService.isAdmin()) {
       <button (click)="showModuleForm.set(!showModuleForm())" class="text-sm bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700">+ Modulo</button>
     }
   </div>
-
   @if (showModuleForm()) {
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
       <form [formGroup]="moduleForm" (ngSubmit)="createModule()" class="flex gap-3 items-end">
@@ -67,7 +33,6 @@
       </form>
     </div>
   }
-
   @if (loading()) { <app-loading /> }
   @else {
     @for (module of modules(); track module.id) {
@@ -84,7 +49,6 @@
             </div>
           }
         </div>
-
         @if (showLessonForm() === module.id) {
           <div class="p-4 bg-gray-50 border-b">
             <form [formGroup]="lessonForm" (ngSubmit)="createLesson(module.id)" class="space-y-3">
@@ -100,24 +64,11 @@
             </form>
           </div>
         }
-
         <div class="divide-y divide-gray-50">
           @for (lesson of module.lessons; track lesson.id) {
-            <div class="px-4 py-3 flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-400">{{ lesson.order }}.</span>
-                <span class="text-sm text-gray-700" [class.line-through]="isLessonCompleted(lesson.id)" [class.text-gray-400]="isLessonCompleted(lesson.id)">
-                  {{ lesson.title }}
-                </span>
-                @if (isLessonCompleted(lesson.id)) {
-                  <span class="text-xs text-green-600 font-medium">Concluida</span>
-                }
-              </div>
-              @if (enrolled() && !authService.isAdmin() && !isLessonCompleted(lesson.id)) {
-                <button (click)="markAsCompleted(lesson.id)" class="text-xs bg-green-100 text-green-700 hover:bg-green-200 px-2 py-1 rounded transition-colors">
-                  Marcar como concluida
-                </button>
-              }
+            <div class="px-4 py-3 flex items-center gap-3">
+              <span class="text-xs text-gray-400">{{ lesson.order }}.</span>
+              <span class="text-sm text-gray-700">{{ lesson.title }}</span>
             </div>
           } @empty {
             <p class="px-4 py-3 text-sm text-gray-400 italic">Nenhuma aula cadastrada.</p>
