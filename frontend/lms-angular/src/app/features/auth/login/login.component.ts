@@ -15,15 +15,8 @@ export class LoginComponent {
   loading = signal(false);
   error = signal('');
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
-  ) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+    this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] });
   }
 
   onSubmit(): void {
@@ -32,10 +25,7 @@ export class LoginComponent {
     this.error.set('');
     this.authService.login(this.form.value).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: (err: any) => {
-        this.error.set(err.error?.message || 'E-mail ou senha invalidos.');
-        this.loading.set(false);
-      }
+      error: (err: any) => { this.error.set(err.error?.message || 'E-mail ou senha invalidos.'); this.loading.set(false); }
     });
   }
 }
